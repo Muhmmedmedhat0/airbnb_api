@@ -19,10 +19,11 @@ router.get('/find/:id', hotelController.getHotel);
 router.get('/', hotelController.getHotels);
 
 // COUNT HOTELS BY CITY
-// 
+// http://localhost:8080/api/hotels/getByCity?cities=london,egypt,usa
 router.get('/getByCity', hotelController.countHotelsByCity);
 
 // COUNT HOTELS BY TYPE
+// http://localhost:8080/api/hotels/getByType?types=hotel,villa,room
 router.get('/getByType', hotelController.countHotelsByType);
 
 module.exports = router;

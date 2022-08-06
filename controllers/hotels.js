@@ -92,7 +92,12 @@ exports.getHotel = async (req, res, next) => {
 
 // get all hotels controller
 exports.getHotels = async (req, res, next) => {
-  const hotels = await Hotel.find()
+  const { min, max, ...otherQuery } = req.query;
+  await Hotel.find({
+    ...otherQuery,
+    chapestPrice: { $gte: min || 1, $lte: max || 9000 },
+  })
+    .limit(req.query.limit)
     .then((hotels) => {
       if (!hotels) {
         const error = new Error('Could not find hotels.');
