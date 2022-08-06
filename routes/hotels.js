@@ -13,9 +13,16 @@ router.put('/:id', verifyHost, hotelController.updateHotel);
 router.delete('/:id', verifyHost, hotelController.deleteHotel);
 
 // GET A HOTEL
-router.get('/:id', hotelController.getHotel);
+router.get('/find/:id', hotelController.getHotel);
 
 // GET ALL HOTELS
-router.get('/', hotelController.getAllHotels);
+router.get('/', hotelController.getHotels);
+
+// COUNT HOTELS BY CITY
+// 
+router.get('/getByCity', hotelController.countHotelsByCity);
+
+// COUNT HOTELS BY TYPE
+router.get('/getByType', hotelController.countHotelsByType);
 
 module.exports = router;

@@ -91,7 +91,7 @@ exports.getHotel = async (req, res, next) => {
 };
 
 // get all hotels controller
-exports.getAllHotels = async (req, res, next) => {
+exports.getHotels = async (req, res, next) => {
   const hotels = await Hotel.find()
     .then((hotels) => {
       if (!hotels) {
@@ -102,6 +102,62 @@ exports.getAllHotels = async (req, res, next) => {
       res.status(200).json({
         message: 'Hotels found successfully!',
         hotels: hotels,
+      });
+    })
+    .catch((err) => {
+      if (!err.statusCode) {
+        err.statusCode = 500;
+      }
+      next(err);
+    });
+};
+
+// count hotels by city controller
+exports.countHotelsByCity = async (req, res, next) => {
+  const cities = req.query.cities.split(',');
+  await Promise.all(
+    cities.map((city) => {
+      return Hotel.countDocuments({ city: city });
+    })
+  )
+    .then((list) => {
+      if (!list) {
+        res.status(404).json({
+          message: 'Could not find hotels.',
+        });
+      }
+      res.status(200).json({
+        message: 'Hotels found successfully!',
+        list: list,
+        cities: cities,
+      });
+    })
+    .catch((err) => {
+      if (!err.statusCode) {
+        err.statusCode = 500;
+      }
+      next(err);
+    });
+};
+
+// count hotels by type controller
+exports.countHotelsByType = async (req, res, next) => {
+  const types = req.query.types.split(',');
+  await Promise.all(
+    types.map((type) => {
+      return Hotel.countDocuments({ type: type });
+    })
+  )
+    .then((list) => {
+      if (!list) {
+        res.status(404).json({
+          message: 'Could not find hotels.',
+        });
+      }
+      res.status(200).json({
+        message: 'Hotels found successfully!',
+        list: list,
+        types: types,
       });
     })
     .catch((err) => {
