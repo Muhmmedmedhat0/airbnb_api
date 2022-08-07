@@ -10,6 +10,9 @@ router.post('/:hotelId', verifyHost, roomController.createRoom);
 // UPDATE A ROOM
 router.put('/:id', verifyHost, roomController.updateRoom);
 
+// UPDATE ROOM AVAILABILITY
+router.put('/:id/availability', roomController.updateRoomAvailability);
+
 // DELETE A ROOM
 router.delete('/:hotelId/:roomId', verifyHost, roomController.deleteRoom);
 

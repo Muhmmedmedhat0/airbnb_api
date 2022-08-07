@@ -60,6 +60,27 @@ exports.updateRoom = async (req, res, next) => {
     });
 };
 
+// update room availability controller
+exports.updateRoomAvailability = async (req, res, next) => {
+  try {
+    await Room.updateOne(
+      { 'roomNumbers._id': req.params.id },
+      {
+        $push: {
+          'roomNumbers.$.unavailableDates': req.body.dates,
+        },
+      }
+    );
+    res.status(200).json({
+      message: 'Room availability updated successfully',
+      room: req.body,
+    }
+      );
+  } catch (err) {
+    next(err);
+  }
+};
+
 // delete room controller
 exports.deleteRoom = async (req, res, next) => {
   // delete the room from the hotel rooms array
