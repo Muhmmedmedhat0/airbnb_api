@@ -1,4 +1,5 @@
 const Hotel = require('../models/Hotel');
+const Room = require('../models/Room');
 // create hotel controller
 exports.createHotel = async (req, res, next) => {
   const hotel = await new Hotel(req.body);
@@ -171,4 +172,28 @@ exports.countHotelsByType = async (req, res, next) => {
       }
       next(err);
     });
+};
+
+// get hotel rooms controller
+exports.getHotelRooms = async (req, res, next) => {
+  // get all rooms of hotel
+  const { id } = req.params;
+  const hotel = await Hotel.findById(id);
+  // the rooms of hotel are stored in the rooms array of hotel
+  await Promise.all(
+    hotel.rooms.map((room) => {
+      return Room.findById(room);
+    })
+  ).then((list) => {
+    if (!list) {
+      res.status(404).json({
+        message: 'Could not find rooms.',
+        rooms: list,
+      });
+    }
+    res.status(200).json({
+      message: 'Rooms found successfully!',
+      rooms: list,
+    });
+  });
 };

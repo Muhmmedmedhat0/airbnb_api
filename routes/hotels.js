@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const hotelController = require('../controllers/hotels');
-const { verifyHost, verifyAdmin } = require('../middlewares/verifyToken');
+const { verifyHost } = require('../middlewares/verifyToken');
 
 // CREATE A NEW HOTEL
 router.post('/', verifyHost, hotelController.createHotel);
@@ -25,5 +25,9 @@ router.get('/getByCity', hotelController.countHotelsByCity);
 // COUNT HOTELS BY TYPE
 // http://localhost:8080/api/hotels/getByType?types=hotel,villa,room
 router.get('/getByType', hotelController.countHotelsByType);
+
+// GET HOTEL ROOMS
+router.get('/:id/rooms', hotelController.getHotelRooms);
+
 
 module.exports = router;
