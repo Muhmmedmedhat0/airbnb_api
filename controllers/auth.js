@@ -14,8 +14,7 @@ exports.signup = async (req, res, next) => {
   // hash password before saving it to the database
   bycript.hash(req.body.password, 12).then((hashedPw) => {
     const user = new User({
-      email: req.body.email,
-      name: req.body.name,
+      ...req.body,
       password: hashedPw,
     });
     // save user to database
