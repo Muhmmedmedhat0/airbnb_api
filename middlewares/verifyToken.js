@@ -3,25 +3,17 @@ const JWT_SECRET = global.process.env.JWT_SECRET;
 
 // verify token
 const verifyToken = (req, res, next) => {
-  const { authorization } = req.headers;
-
-  if (authorization) {
-    const token = authorization.split(' ')[1];
-    jwt.verify(token, JWT_SECRET, (err, decodedToken) => {
-      if (err)
-        return res.status(403).json({
-          message: 'Token is not valid!',
-          error: err,
-        });
-      req.user = decodedToken;
-      next();
-    });
-  } else {
-    return res.status(401).json({
-      message: 'You are not authenticated!',
-      error: 'No token provided!',
-    });
+  const token = req.cookies.access_token;
+  if (!token) {
+    return res.status(401).json({ error: 'No token provided' });
   }
+  jwt.verify(token, JWT_SECRET, (err, decodedToken) => {
+    if (err) {
+      return res.status(401).json({ error: 'Token is not valid' });
+    }
+    req.user = decodedToken;
+    next();
+  });
 };
 
 // verify user

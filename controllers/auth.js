@@ -63,13 +63,22 @@ exports.login = async (req, res, next) => {
 
       const { password, ...otherDetails } = loadedUser._doc;
       // send user details and token to client side
-      res.status(200).json({
-        message: `Welcome ${loadedUser.name}!`,
-        user: {
-          ...otherDetails,
-          token: token,
-        },
-      });
+      // res.status(200).json({
+      //   message: `Welcome ${loadedUser.name}!`,
+      //   user: {
+      //     ...otherDetails,
+      //     token: token,
+      //   },
+      // });
+      res
+        .cookie('token', token, { httpOnly: true }, { secure: true })
+        .status(200)
+        .json({
+          message: `Welcome ${loadedUser.name}!`,
+          user: {
+            ...otherDetails,
+          },
+        });
     })
     .catch((err) => {
       if (!err.statusCode) {

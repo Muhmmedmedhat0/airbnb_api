@@ -5,10 +5,10 @@ const UserSchema = new mongooose.Schema(
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     isAdmin: { type: String, default: 'guest' },
-    country: { type: String, required: true },
+    country: { type: String },
     img: { type: String },
-    city: { type: String, required: true },
-    phone: { type: String, required: true },
+    city: { type: String },
+    phone: { type: String },
   },
   { timestamps: true }
 );
