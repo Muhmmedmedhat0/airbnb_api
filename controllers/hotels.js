@@ -2,8 +2,8 @@ const Hotel = require('../models/Hotel');
 const Room = require('../models/Room');
 // create hotel controller
 exports.createHotel = async (req, res, next) => {
-  const hotel = await new Hotel(req.body);
-  hotel
+  const hotel = new Hotel(req.body);
+  await hotel
     .save()
     .then((result) => {
       res.status(201).json({
@@ -23,11 +23,7 @@ exports.createHotel = async (req, res, next) => {
 // update hotel controller
 exports.updateHotel = async (req, res, next) => {
   const { id } = req.params;
-  const hotel = await Hotel.findByIdAndUpdate(
-    id,
-    { $set: req.body },
-    { new: true }
-  )
+  await Hotel.findByIdAndUpdate(id, { $set: req.body }, { new: true })
     .then((hotel) => {
       if (!hotel) {
         const error = new Error('Could not find hotel.');
@@ -50,7 +46,7 @@ exports.updateHotel = async (req, res, next) => {
 // delete hotel controller
 exports.deleteHotel = async (req, res, next) => {
   const { id } = req.params;
-  const hotel = await Hotel.findByIdAndDelete(id)
+  await Hotel.findByIdAndDelete(id)
     .then((hotel) => {
       if (!hotel) {
         const error = new Error('Could not find hotel.');
@@ -71,7 +67,7 @@ exports.deleteHotel = async (req, res, next) => {
 // get hotel controller
 exports.getHotel = async (req, res, next) => {
   const { id } = req.params;
-  const hotel = await Hotel.findById(id)
+  await Hotel.findById(id)
     .then((hotel) => {
       if (!hotel) {
         const error = new Error('Could not find hotel.');
