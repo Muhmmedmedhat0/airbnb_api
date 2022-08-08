@@ -61,7 +61,7 @@ exports.login = async (req, res, next) => {
         { expiresIn: '5h' }
       );
 
-      const { password, ...otherDetails } = loadedUser._doc;
+      const { password, isAdmin ,...otherDetails } = loadedUser._doc;
       // send user details and token to client side
       // res.status(200).json({
       //   message: `Welcome ${loadedUser.name}!`,

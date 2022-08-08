@@ -11,6 +11,7 @@ const authRouter = require('./routes/auth');
 const usersRouter = require('./routes/users');
 const hotelsRouter = require('./routes/hotels');
 const roomsRouter = require('./routes/rooms');
+const paymentRouter = require('./routes/payment');
 
 // middlewares
 
@@ -22,6 +23,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/hotels', hotelsRouter);
 app.use('/api/rooms', roomsRouter);
+app.use('/api/payment', paymentRouter);
 
 // error handling middleware - must be last in the chain of middleware (after all other middleware)
 app.use((error, req, res, next) => {
