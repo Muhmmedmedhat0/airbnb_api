@@ -3,7 +3,7 @@ const JWT_SECRET = global.process.env.JWT_SECRET;
 
 // verify token
 const verifyToken = (req, res, next) => {
-  const token = req.cookies.access_token;
+  const token = req.cookies.token;
   if (!token) {
     return res.status(401).json({ error: 'No token provided' });
   }

@@ -73,9 +73,8 @@ exports.updateRoomAvailability = async (req, res, next) => {
     );
     res.status(200).json({
       message: 'Room availability updated successfully',
-      room: req.body,
-    }
-      );
+      dates: req.body.dates,
+    });
   } catch (err) {
     next(err);
   }
