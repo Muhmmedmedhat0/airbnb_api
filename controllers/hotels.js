@@ -107,6 +107,7 @@ exports.deleteHotel = async (req, res, next) => {
         throw error;
       }
       // check if the logged in user is the creator of the post
+      
       // clear the image
       clearImage(hotel.images);
       // delete all rooms in the hotel
