@@ -77,7 +77,6 @@ exports.updateHotel = async (req, res, next) => {
       if (image !== hotel.images) {
         clearImage(hotel.images);
       }
-
       // if hotel is found, update it
       hotel.name = allFields.name || hotel.name;
       hotel.type = allFields.type || hotel.type;

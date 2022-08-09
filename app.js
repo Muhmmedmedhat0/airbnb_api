@@ -55,7 +55,6 @@ app.use(
   multer({ storage: fileStorage, fileFilter: fileFilter }).single('image')
 ); // parse images from the request
 app.use(express.json());
-
 app.use('/api/auth', authRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/hotels', hotelsRouter);
