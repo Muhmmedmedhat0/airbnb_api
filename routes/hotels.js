@@ -11,51 +11,7 @@ router.post('/', verifyHost, hotelController.createHotel);
 router.put('/:id', verifyHost, hotelController.updateHotel);
 
 // DELETE A HOTEL
-router.delete(
-  '/:id',
-  [
-    body('name')
-      .trim()
-      .isLength({ min: 3 })
-      .isString()
-      .withMessage('Name must be at least 3 characters long.'),
-    body('type')
-      .trim()
-      .isString()
-      .isLength({ min: 3 })
-      .withMessage('Type must be at least 3 characters long.'),
-    body('city')
-      .trim()
-      .isString()
-      .isLength({ min: 3 })
-      .withMessage('City must be at least 3 characters long.'),
-    body('title')
-      .trim()
-      .isString()
-      .isLength({ min: 3 })
-      .withMessage('Title must be at least 3 characters long.'),
-    body('address')
-      .trim()
-      .isString()
-      .isLength({ min: 3 })
-      .withMessage('Address must be at least 3 characters long.'),
-    body('distance')
-      .trim()
-      .isLength({ min: 3 })
-      .withMessage('Distance must be at least 3 characters long.'),
-    body('desc')
-      .trim()
-      .isString()
-      .isLength({ min: 3 })
-      .withMessage('Description must be at least 3 characters long.'),
-    body('chapestPrice')
-      .trim()
-      .isInt()
-      .withMessage('Price must be an integer.'),
-  ],
-  verifyHost,
-  hotelController.deleteHotel
-);
+router.delete('/:id', verifyHost, hotelController.deleteHotel);
 
 // GET A HOTEL
 router.get('/find/:id', hotelController.getHotel);
