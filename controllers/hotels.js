@@ -12,19 +12,12 @@ const clearImage = (filePath) => {
 
 // create hotel controller
 exports.createHotel = async (req, res, next) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    res.status(422).json({
-      message: 'Validation failed, entered data is incorrect.',
-    });
-  }
   // validate the image from the req.file
   if (!req.file) {
     res.status(422).json({
       message: 'No image provided.',
     });
   }
-  console.log(req.file);
   const images = req.file.path.replace('\\', '/');
   const hotel = new Hotel({
     ...req.body,
@@ -46,7 +39,6 @@ exports.createHotel = async (req, res, next) => {
       next(err);
     });
 };
-
 // update hotel controller
 exports.updateHotel = async (req, res, next) => {
   const errors = validationResult(req);
@@ -65,7 +57,7 @@ exports.updateHotel = async (req, res, next) => {
       message: 'No image provided.',
     });
   }
-  await Hotel.findById(id)
+  Hotel.findById(id)
     .then((hotel) => {
       // if no hotel is found, return error
       if (!hotel) {
@@ -87,7 +79,7 @@ exports.updateHotel = async (req, res, next) => {
       hotel.desc = allFields.desc || hotel.desc;
       hotel.chapestPrice = allFields.chapestPrice || hotel.chapestPrice;
       hotel.chapestPrice = allFields.chapestPrice || hotel.chapestPrice;
-      hotel.images = image || hotel.images;
+      hotel.images = image;
       return hotel.save();
     })
     .then((result) => {
@@ -107,16 +99,31 @@ exports.updateHotel = async (req, res, next) => {
 // delete hotel controller
 exports.deleteHotel = async (req, res, next) => {
   const { id } = req.params;
-  await Hotel.findByIdAndDelete(id)
+  await Hotel.findById(id)
     .then((hotel) => {
       if (!hotel) {
         const error = new Error('Could not find hotel.');
         error.statusCode = 404;
         throw error;
       }
-      res.status(200).json({
-        message: 'Hotel deleted successfully!',
-      });
+      // check if the logged in user is the creator of the post
+      // clear the image
+      clearImage(hotel.images);
+      // delete all rooms in the hotel
+      Room.deleteMany({ hotel: id })
+        .then(() => {
+          // delete the hotel
+          hotel.deleteOne();
+          res.status(200).json({
+            message: 'Hotel deleted successfully!',
+          });
+        })
+        .catch((err) => {
+          if (!err.statusCode) {
+            err.statusCode = 500;
+          }
+          next(err);
+        });
     })
     .catch((err) => {
       if (!err.statusCode) {
