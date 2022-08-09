@@ -18,10 +18,8 @@ router.post(
       .withMessage('Invalid email'),
     body('password')
       .trim()
-      .isStrongPassword()
-      .withMessage(
-        'Password must be at least 8 characters long and contain at least one number, one uppercase and one lowercase letter.'
-      ),
+      .isLength({ min: 6 })
+      .withMessage('Password must be at least 6 characters long.'),
   ],
   authController.signup
 );

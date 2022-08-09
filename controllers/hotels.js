@@ -56,7 +56,7 @@ exports.updateHotel = async (req, res, next) => {
     });
   }
   const { id } = req.params;
-  let { ...allFields } = req.body;
+  let { image, ...allFields } = req.body;
   if (req.file) {
     image = req.file.path.replace('\\', '/');
   }

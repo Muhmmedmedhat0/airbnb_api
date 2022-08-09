@@ -73,3 +73,5 @@ app.use((error, req, res, next) => {
 app.listen(PORT, (error) => {
   console.log(error || `server is running on http://localhost:${PORT}`);
 });
+// DATABASE_URL=mongodb+srv://Muhmmed_Medhat:01098014450@cluster0.yb2nz.mongodb.net/airbnb-api?retryWrites=true&w=majority
+// DATABASE_URL=mongodb://localhost:27017/airbnb
