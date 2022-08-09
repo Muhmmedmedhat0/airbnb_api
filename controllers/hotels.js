@@ -1,8 +1,25 @@
 const Hotel = require('../models/Hotel');
 const Room = require('../models/Room');
+const { validationResult } = require('express-validator');
 // create hotel controller
 exports.createHotel = async (req, res, next) => {
-  const hotel = new Hotel(req.body);
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    const error = new Error('Validation failed, entered data is incorrect.');
+    error.statusCode = 422;
+    throw error;
+  }
+  // validate the image from the req.file
+  if (!req.file) {
+    const error = new Error('No image provided.');
+    error.statusCode = 422;
+    throw error;
+  }
+  const images = req.file.path.replace('\\', '/');
+  const hotel = new Hotel({
+    ...req.body,
+    images: images,
+  });
   await hotel
     .save()
     .then((result) => {
@@ -102,8 +119,7 @@ exports.getHotels = async (req, res, next) => {
         throw error;
       }
       res.status(200).json({
-        message: 'Hotels found successfully!',
-        hotels: hotels,
+        hotels: hotels.length > 0 ? hotels : 'No hotels found.',
       });
     })
     .catch((err) => {

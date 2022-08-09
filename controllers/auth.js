@@ -9,11 +9,10 @@ exports.signup = async (req, res, next) => {
   // adding validation to the request body
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res
-      .status(422).json({
-        message: 'Validation failed, entered data is incorrect.',
-        errors: errors.array(),
-      });
+    return res.status(422).json({
+      message: 'Validation failed, entered data is incorrect.',
+      errors: errors.array(),
+    });
   }
   // check if user already exists in database
   const { email } = req.body;
@@ -71,15 +70,7 @@ exports.login = async (req, res, next) => {
         { expiresIn: '5h' }
       );
 
-      const { password, isAdmin, ...otherDetails } = loadedUser._doc;
-      // send user details and token to client side
-      // res.status(200).json({
-      //   message: `Welcome ${loadedUser.name}!`,
-      //   user: {
-      //     ...otherDetails,
-      //     token: token,
-      //   },
-      // });
+      const { password, ...otherDetails } = loadedUser._doc;
       res
         .cookie('token', token, { httpOnly: true }, { secure: true })
         .status(200)

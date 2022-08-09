@@ -1,10 +1,39 @@
 require('dotenv').config();
 require('./database/config');
+const path = require('path');
+const multer = require('multer');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const PORT = global.process.env.PORT;
 const express = require('express');
 const app = express();
+
+// configure multer to store files in the images folder
+const fileStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'images');
+  },
+  filename: (req, file, cb) => {
+    cb(
+      null,
+      new Date().toISOString().replace(/:/g, '-') + '-' + file.originalname
+    );
+  },
+});
+
+const fileFilter = (req, file, cb) => {
+  if (
+    file.mimetype === 'image/png' ||
+    file.mimetype === 'image/jpg' ||
+    file.mimetype === 'image/jpeg'
+  ) {
+    // valid file
+    cb(null, true);
+  } else {
+    // invalid file
+    cb(null, false);
+  }
+};
 
 // routes
 const authRouter = require('./routes/auth');
@@ -17,6 +46,10 @@ const paymentRouter = require('./routes/payment');
 
 app.use(cors()); // cross-origin resource sharing for communication between different origins
 app.use(cookieParser()); // parse cookies
+app.use('/images', express.static(path.join(__dirname, 'images', '/'))); // serve static files from the images folder
+app.use(
+  multer({ storage: fileStorage, fileFilter: fileFilter }).single('image')
+); // parse images from the request
 app.use(express.json());
 
 app.use('/api/auth', authRouter);
