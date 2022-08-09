@@ -3,6 +3,7 @@ require('./database/config');
 const path = require('path');
 const multer = require('multer');
 const cors = require('cors');
+const fs = require('fs');
 const cookieParser = require('cookie-parser');
 const PORT = global.process.env.PORT;
 const express = require('express');
@@ -11,7 +12,11 @@ const app = express();
 // configure multer to store files in the images folder
 const fileStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'images');
+    const dir = 'images';
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir);
+    }
+    cb(null, dir);
   },
   filename: (req, file, cb) => {
     cb(
@@ -43,7 +48,6 @@ const roomsRouter = require('./routes/rooms');
 const paymentRouter = require('./routes/payment');
 
 // middlewares
-
 app.use(cors()); // cross-origin resource sharing for communication between different origins
 app.use(cookieParser()); // parse cookies
 app.use('/images', express.static(path.join(__dirname, 'images', '/'))); // serve static files from the images folder

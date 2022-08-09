@@ -1,20 +1,30 @@
 const Hotel = require('../models/Hotel');
 const Room = require('../models/Room');
 const { validationResult } = require('express-validator');
+const fs = require('fs');
+const path = require('path');
+
+// delete an image
+const clearImage = (filePath) => {
+  filePath = path.join(__dirname, '..', filePath);
+  fs.unlink(filePath, (err) => console.log(err));
+};
+
 // create hotel controller
 exports.createHotel = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    const error = new Error('Validation failed, entered data is incorrect.');
-    error.statusCode = 422;
-    throw error;
+    res.status(422).json({
+      message: 'Validation failed, entered data is incorrect.',
+    });
   }
   // validate the image from the req.file
   if (!req.file) {
-    const error = new Error('No image provided.');
-    error.statusCode = 422;
-    throw error;
+    res.status(422).json({
+      message: 'No image provided.',
+    });
   }
+  console.log(req.file);
   const images = req.file.path.replace('\\', '/');
   const hotel = new Hotel({
     ...req.body,
@@ -39,17 +49,52 @@ exports.createHotel = async (req, res, next) => {
 
 // update hotel controller
 exports.updateHotel = async (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    res.status(422).json({
+      message: 'Validation failed, entered data is incorrect.',
+    });
+  }
   const { id } = req.params;
-  await Hotel.findByIdAndUpdate(id, { $set: req.body }, { new: true })
+  let { ...allFields } = req.body;
+  if (req.file) {
+    image = req.file.path.replace('\\', '/');
+  }
+  if (!image) {
+    res.status(422).json({
+      message: 'No image provided.',
+    });
+  }
+  await Hotel.findById(id)
     .then((hotel) => {
+      // if no hotel is found, return error
       if (!hotel) {
         const error = new Error('Could not find hotel.');
         error.statusCode = 404;
         throw error;
       }
+      // if image is provided, delete the old image
+      if (image !== hotel.images) {
+        clearImage(hotel.images);
+      }
+
+      // if hotel is found, update it
+      hotel.name = allFields.name || hotel.name;
+      hotel.type = allFields.type || hotel.type;
+      hotel.city = allFields.city || hotel.city;
+      hotel.title = allFields.title || hotel.title;
+      hotel.address = allFields.address || hotel.address;
+      hotel.distance = allFields.distance || hotel.distance;
+      hotel.desc = allFields.desc || hotel.desc;
+      hotel.chapestPrice = allFields.chapestPrice || hotel.chapestPrice;
+      hotel.chapestPrice = allFields.chapestPrice || hotel.chapestPrice;
+      hotel.images = image || hotel.images;
+      return hotel.save();
+    })
+    .then((result) => {
       res.status(200).json({
         message: 'Hotel updated successfully!',
-        hotel: hotel,
+        hotel: result,
       });
     })
     .catch((err) => {
