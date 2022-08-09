@@ -77,8 +77,8 @@ exports.updateHotel = async (req, res, next) => {
       hotel.address = allFields.address || hotel.address;
       hotel.distance = allFields.distance || hotel.distance;
       hotel.desc = allFields.desc || hotel.desc;
-      hotel.chapestPrice = allFields.chapestPrice || hotel.chapestPrice;
-      hotel.chapestPrice = allFields.chapestPrice || hotel.chapestPrice;
+      hotel.cheapestPrice = allFields.cheapestPrice || hotel.cheapestPrice;
+      hotel.cheapestPrice = allFields.cheapestPrice || hotel.cheapestPrice;
       hotel.images = image;
       return hotel.save();
     })
