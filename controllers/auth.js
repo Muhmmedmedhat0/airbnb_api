@@ -18,7 +18,7 @@ exports.signup = async (req, res, next) => {
   const { email } = req.body;
   const user = await User.findOne({ email });
   if (user) {
-    return res.status(400).json({ error: 'User already exists' });
+    return res.status(400).json({ error: 'Email already exists' });
   }
   // hash password before saving it to the database
   bycript.hash(req.body.password, 12).then((hashedPw) => {
@@ -30,9 +30,10 @@ exports.signup = async (req, res, next) => {
     user
       .save()
       .then((user) => {
+        const { password, isAdmin, ...otherDetails } = user._doc;
         res.status(201).json({
           message: 'User created!',
-          user: user,
+          user: { ...otherDetails },
         });
       })
       .catch((err) => {
@@ -46,6 +47,14 @@ exports.signup = async (req, res, next) => {
 
 // login controller for authentication
 exports.login = async (req, res, next) => {
+  // adding validation to the request body
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(422).json({
+      message: 'Validation failed, entered data is incorrect.',
+      errors: errors.array(),
+    });
+  }
   // check if user already exists in database
   const { email, password } = req.body;
   const user = await User.findOne({ email });
@@ -70,7 +79,7 @@ exports.login = async (req, res, next) => {
         { expiresIn: '5h' }
       );
 
-      const { password, ...otherDetails } = loadedUser._doc;
+      const { password, isAdmin, ...otherDetails } = loadedUser._doc;
       res
         .cookie('token', token, { httpOnly: true }, { secure: true })
         .status(200)

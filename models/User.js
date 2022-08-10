@@ -9,6 +9,7 @@ const UserSchema = new mongooose.Schema(
     img: { type: String },
     city: { type: String },
     phone: { type: String },
+    hotels: [{ type: mongooose.Schema.Types.ObjectId, ref: 'Hotel' }],
   },
   { timestamps: true }
 );

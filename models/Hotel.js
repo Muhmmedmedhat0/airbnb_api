@@ -13,6 +13,11 @@ const HotelSchema = new mongoose.Schema(
     rooms: { type: [String] },
     cheapestPrice: { type: Number, required: true },
     featured: { type: Boolean, default: false },
+    creator: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
   },
   { timestamps: true }
 );

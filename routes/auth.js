@@ -19,6 +19,8 @@ router.post(
     body('password')
       .trim()
       .isLength({ min: 4 })
+      .not()
+      .isEmpty()
       .withMessage('Password must be at least 4 characters long.'),
   ],
   authController.signup
@@ -27,7 +29,10 @@ router.post(
 // login
 router.post(
   '/login',
-  [body('email').isEmail().trim().normalizeEmail(), body('password').trim()],
+  [
+    body('email').isEmail().trim().normalizeEmail(),
+    body('password').trim().not().isEmpty(),
+  ],
   authController.login
 );
 module.exports = router;
