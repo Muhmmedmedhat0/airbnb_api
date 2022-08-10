@@ -76,7 +76,7 @@ exports.login = async (req, res, next) => {
           userId: loadedUser._id.toString(),
         },
         JWT_SECRET,
-        { expiresIn: '5h' }
+        { expiresIn: '1h' }
       );
 
       const { password, isAdmin, ...otherDetails } = loadedUser._doc;

@@ -1,5 +1,6 @@
 const Hotel = require('../models/Hotel');
 const Room = require('../models/Room');
+const User = require('../models/User');
 const { validationResult } = require('express-validator');
 const fs = require('fs');
 const path = require('path');
@@ -12,27 +13,52 @@ const clearImage = (filePath) => {
 
 // create hotel controller
 exports.createHotel = async (req, res, next) => {
-  // validate the image from the req.file
-  if (!req.file) {
-    res.status(422).json({
-      message: 'No image provided.',
-    });
+  console.log(req.user.userId);
+  // get the validation result from the request object
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    const error = new Error('Validation failed, entered data is incorrect.');
+    error.statusCode = 422;
+    throw error;
   }
-  const images = req.file.path.replace('\\', '/');
+  // check if the image is provided
+  if (!req.file) {
+    const error = new Error('No image provided.');
+    error.statusCode = 422;
+    throw error;
+  }
+  // get the image path
+  const image = req.file.path.replace('\\', '/');
+  // create the hotel object
+  let creator;
   const hotel = new Hotel({
     ...req.body,
-    images: images,
+    images: image,
+    // attach the user to the hotel
+    creator: req.user.userId,
   });
+  // save the hotel and add the hotel to the user array
   await hotel
     .save()
+    .then(() => {
+      return User.findById(req.user.userId);
+    })
+    .then((user) => {
+      creator = user;
+      user.hotels.push(hotel);
+      return user.save();
+    })
     .then((result) => {
       res.status(201).json({
         message: 'Hotel created successfully!',
-        hotel: result,
+        hotel: hotel,
+        creator: {
+          _id: creator._id,
+          name: creator.name,
+        },
       });
     })
     .catch((err) => {
-      // if statusCode is not set, set it to 500
       if (!err.statusCode) {
         err.statusCode = 500;
       }
@@ -63,6 +89,12 @@ exports.updateHotel = async (req, res, next) => {
       if (!hotel) {
         const error = new Error('Could not find hotel.');
         error.statusCode = 404;
+        throw error;
+      }
+      // if the logged in user is not the creator of the hotel, return error
+      if (hotel.creator.toString() !== req.user.userId) {
+        const error = new Error('Not authorized!');
+        error.statusCode = 403;
         throw error;
       }
       // if image is provided, delete the old image
@@ -107,14 +139,28 @@ exports.deleteHotel = async (req, res, next) => {
         throw error;
       }
       // check if the logged in user is the creator of the post
-
+      if (hotel.creator.toString() !== req.user.userId) {
+        const error = new Error('Not authorized!');
+        error.statusCode = 403;
+        throw error;
+      }
       // clear the image
       clearImage(hotel.images);
-      // delete all rooms in the hotel
+      // delete all rooms in the hotel related to the hotel
       Room.deleteMany({ hotel: id })
         .then(() => {
           // delete the hotel
-          hotel.deleteOne();
+          return hotel.deleteOne();
+        })
+        .then(() => {
+          // deleate the hotel from the user array
+          return User.findById(req.user.userId);
+        })
+        .then((user) => {
+          user.hotels.pull(hotel);
+          return user.save();
+        })
+        .then(() => {
           res.status(200).json({
             message: 'Hotel deleted successfully!',
           });
@@ -161,7 +207,9 @@ exports.getHotels = async (req, res, next) => {
   const { min, max, ...otherQuery } = req.query;
   await Hotel.find({
     ...otherQuery,
-    chapestPrice: { $gte: min || 1, $lte: max || 9000 },
+    cheapestPrice: { $gte: min || 1, $lte: max || 9000 },
+    // get by cheapest price
+    // http:localhost:5000/api/hotels?min=1&max=9000
   })
     .limit(req.query.limit)
     .then((hotels) => {

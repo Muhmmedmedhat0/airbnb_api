@@ -5,11 +5,13 @@ const JWT_SECRET = global.process.env.JWT_SECRET;
 const verifyToken = (req, res, next) => {
   const token = req.cookies.token;
   if (!token) {
-    return res.status(401).json({ error: 'No token provided' });
+    return res
+      .status(401)
+      .json({ error: 'No token provided You are not authinticated' });
   }
   jwt.verify(token, JWT_SECRET, (err, decodedToken) => {
     if (err) {
-      return res.status(401).json({ error: 'Token is not valid' });
+      return res.status(401).json({ error: 'Unauthorized request' });
     }
     req.user = decodedToken;
     next();
