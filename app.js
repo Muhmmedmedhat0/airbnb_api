@@ -52,7 +52,7 @@ app.use(cors()); // cross-origin resource sharing for communication between diff
 app.use(cookieParser()); // parse cookies
 app.use('/images', express.static(path.join(__dirname, 'images', '/'))); // serve static files from the images folder
 app.use(
-  multer({ storage: fileStorage, fileFilter: fileFilter }).single('image')
+  multer({ storage: fileStorage, fileFilter: fileFilter }).array('images', 10)
 ); // parse images from the request
 app.use(express.json());
 app.use('/api/auth', authRouter);

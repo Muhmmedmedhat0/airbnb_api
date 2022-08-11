@@ -3,17 +3,17 @@ const Room = require('../models/Room');
 const User = require('../models/User');
 const { validationResult } = require('express-validator');
 const fs = require('fs');
-const path = require('path');
 
-// delete an image
-const clearImage = (filePath) => {
-  filePath = path.join(__dirname, '..', filePath);
-  fs.unlink(filePath, (err) => console.log(err));
+//  delete the old images from the server when the hotel is updated
+const clearImage = (oldImages) => {
+  oldImages.map((image) => {
+    fs.unlink(image, (err) => console.log(err));
+  }),
+    (err) => console.log(err);
 };
 
 // create hotel controller
 exports.createHotel = async (req, res, next) => {
-  console.log(req.user.userId);
   // get the validation result from the request object
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -21,23 +21,22 @@ exports.createHotel = async (req, res, next) => {
     error.statusCode = 422;
     throw error;
   }
-  // check if the image is provided
-  if (!req.file) {
-    const error = new Error('No image provided.');
+  const images = req.files.map((file) => file.path.replace('\\', '/'));
+  // check if thers is an image
+  if (images.length === 0) {
+    const error = new Error('No images provided.');
     error.statusCode = 422;
     throw error;
   }
-  // get the image path
-  const image = req.file.path.replace('\\', '/');
-  // create the hotel object
+  // get the hotel data from the request body
+  const { ...allFields } = req.body;
   let creator;
   const hotel = new Hotel({
-    ...req.body,
-    images: image,
-    // attach the user to the hotel
+    ...allFields,
     creator: req.user.userId,
+    images: images,
   });
-  // save the hotel and add the hotel to the user array
+  // save the hotel to the database
   await hotel
     .save()
     .then(() => {
@@ -69,39 +68,40 @@ exports.createHotel = async (req, res, next) => {
 exports.updateHotel = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    res.status(422).json({
-      message: 'Validation failed, entered data is incorrect.',
-    });
+    const error = new Error('Validation failed, entered data is incorrect.');
+    error.statusCode = 422;
+    throw error;
   }
   const { id } = req.params;
-  let { image, ...allFields } = req.body;
-  if (req.file) {
-    image = req.file.path.replace('\\', '/');
+  let { ...allFields } = req.body;
+  let images;
+  // check if theres is an image to update
+  if (req.files) {
+    images = req.files.map((file) => file.path.replace('\\', '/'));
   }
-  if (!image) {
-    res.status(422).json({
-      message: 'No image provided.',
-    });
+  if (images.length === 0) {
+    const error = new Error('No images provided.');
+    error.statusCode = 422;
+    throw error;
   }
-  Hotel.findById(id)
+  await Hotel.findById(id)
     .then((hotel) => {
-      // if no hotel is found, return error
       if (!hotel) {
         const error = new Error('Could not find hotel.');
         error.statusCode = 404;
         throw error;
       }
-      // if the logged in user is not the creator of the hotel, return error
+      // check if the logged in user is the creator of the hotel
       if (hotel.creator.toString() !== req.user.userId) {
         const error = new Error('Not authorized!');
         error.statusCode = 403;
         throw error;
       }
-      // if image is provided, delete the old image
-      if (image !== hotel.images) {
+      // if images are provided, clear the old images
+      if (images !== hotel.images) {
         clearImage(hotel.images);
       }
-      // if hotel is found, update it
+      // update the hotel
       hotel.name = allFields.name || hotel.name;
       hotel.type = allFields.type || hotel.type;
       hotel.city = allFields.city || hotel.city;
@@ -109,9 +109,9 @@ exports.updateHotel = async (req, res, next) => {
       hotel.address = allFields.address || hotel.address;
       hotel.distance = allFields.distance || hotel.distance;
       hotel.desc = allFields.desc || hotel.desc;
+      hotel.images = images || hotel.images;
       hotel.cheapestPrice = allFields.cheapestPrice || hotel.cheapestPrice;
-      hotel.cheapestPrice = allFields.cheapestPrice || hotel.cheapestPrice;
-      hotel.images = image;
+      hotel.featured = allFields.featured || hotel.featured;
       return hotel.save();
     })
     .then((result) => {
@@ -146,7 +146,6 @@ exports.deleteHotel = async (req, res, next) => {
       }
       // clear the image
       clearImage(hotel.images);
-      // delete all rooms in the hotel related to the hotel
       Room.deleteMany({ hotel: id })
         .then(() => {
           // delete the hotel
@@ -240,9 +239,9 @@ exports.countHotelsByCity = async (req, res, next) => {
   )
     .then((list) => {
       if (!list) {
-        res.status(404).json({
-          message: 'Could not find hotels.',
-        });
+        const error = new Error('Could not find hotels.');
+        error.statusCode = 404;
+        throw error;
       }
       res.status(200).json({
         message: 'Hotels found successfully!',
@@ -268,9 +267,9 @@ exports.countHotelsByType = async (req, res, next) => {
   )
     .then((list) => {
       if (!list) {
-        res.status(404).json({
-          message: 'Could not find hotels.',
-        });
+        const error = new Error('Could not find hotels.');
+        error.statusCode = 404;
+        throw error;
       }
       res.status(200).json({
         message: 'Hotels found successfully!',
@@ -298,10 +297,9 @@ exports.getHotelRooms = async (req, res, next) => {
     })
   ).then((list) => {
     if (!list) {
-      res.status(404).json({
-        message: 'Could not find rooms.',
-        rooms: list,
-      });
+      const error = new Error('Could not find rooms.');
+      error.statusCode = 404;
+      throw error;
     }
     res.status(200).json({
       message: 'Rooms found successfully!',

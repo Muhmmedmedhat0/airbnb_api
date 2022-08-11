@@ -1,10 +1,26 @@
 const User = require('../models/User');
+const { validationResult } = require('express-validator');
 
 // update user controller
 exports.updateUser = async (req, res, next) => {
+  // adding validation to the request body
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    const error = new Error('Validation failed, entered data is incorrect.');
+    error.statusCode = 422;
+    throw error;
+  }
   const { id } = req.params;
+  // check if the logged in user is the creator of the post
+
   await User.findByIdAndUpdate(id, { $set: req.body }, { new: true })
     .then((user) => {
+      // check if the logged in user is the creator of the post
+      if (user._id.toString() !== req.user.userId) {
+        const error = new Error('Not authorized!');
+        error.statusCode = 403;
+        throw error;
+      }
       // if user does not exist, return error
       if (!user) {
         const error = new Error('User does not exist');
@@ -29,6 +45,12 @@ exports.deleteUser = async (req, res, next) => {
   const { id } = req.params;
   await User.findByIdAndDelete(id)
     .then((user) => {
+      // check if the logged in user is the creator of the post
+      if (user._id.toString() !== req.user.userId) {
+        const error = new Error('Not authorized!');
+        error.statusCode = 403;
+        throw error;
+      }
       // if user does not exist, return error
       if (!user) {
         const error = new Error('User does not exist');
@@ -51,6 +73,7 @@ exports.deleteUser = async (req, res, next) => {
 // get user controller
 exports.getUser = async (req, res, next) => {
   const { id } = req.params;
+  // console.log(req.user.userId);
   await User.findById(id)
     .then((user) => {
       // if user does not exist, return error

@@ -5,13 +5,15 @@ const JWT_SECRET = global.process.env.JWT_SECRET;
 const verifyToken = (req, res, next) => {
   const token = req.cookies.token;
   if (!token) {
-    return res
-      .status(401)
-      .json({ error: 'No token provided You are not authinticated' });
+    const error = new Error('You are not logged in!');
+    error.statusCode = 401;
+    throw error;
   }
   jwt.verify(token, JWT_SECRET, (err, decodedToken) => {
     if (err) {
-      return res.status(401).json({ error: 'Unauthorized request' });
+      const error = new Error('Unauthorized request');
+      error.statusCode = 401;
+      throw error;
     }
     req.user = decodedToken;
     next();
@@ -26,9 +28,9 @@ const verifyUser = (req, res, next) => {
     if (req.user.userId === req.params.id || req.user.isAdmin === 'admin') {
       next();
     } else {
-      return res.status(403).json({
-        message: 'You are not authorized to perform this action!',
-      });
+      const error = new Error('You are not authorized to perform this action!');
+      error.statusCode = 403;
+      throw error;
     }
   });
 };
@@ -41,10 +43,9 @@ const verifyHost = (req, res, next) => {
     if (req.user.isAdmin === 'host' || req.user.isAdmin === 'admin') {
       next();
     } else {
-      return res.status(403).json({
-        message: 'You are not authorized to perform this action!',
-        error: 'You are not authorized to perform this action!',
-      });
+      const error = new Error('You are not authorized to perform this action!');
+      error.statusCode = 403;
+      throw error;
     }
   });
 };
@@ -56,10 +57,9 @@ const verifyAdmin = (req, res, next) => {
     if (req.user.isAdmin === 'admin') {
       next();
     } else {
-      return res.status(403).json({
-        message: 'You are not authorized to perform this action!',
-        error: 'You are not authorized to perform this action!',
-      });
+      const error = new Error('You are not authorized to perform this action!');
+      error.statusCode = 403;
+      throw error;
     }
   });
 };

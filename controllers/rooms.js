@@ -1,8 +1,16 @@
 const Hotel = require('../models/Hotel');
 const Room = require('../models/Room');
+const { validationResult } = require('express-validator');
 
 // create a new room
 exports.createRoom = async (req, res, next) => {
+  // adding validation to the request body
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    const error = new Error('Validation failed, entered data is incorrect.');
+    error.statusCode = 422;
+    throw error;
+  }
   // after the room is created, add it to the hotel rooms array by using the hotelId in the request body
   const { hotelId } = req.params;
   const newRoom = new Room(req.body);
@@ -39,13 +47,20 @@ exports.createRoom = async (req, res, next) => {
 
 // update room controller
 exports.updateRoom = async (req, res, next) => {
+  // adding validation to the request body
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    const error = new Error('Validation failed, entered data is incorrect.');
+    error.statusCode = 422;
+    throw error;
+  }
   await Room.findByIdAndUpdate(req.params.id, { $set: req.body }, { new: true })
     .then((room) => {
       // if  is not found, return 404
       if (!room) {
-        return res.status(404).json({
-          message: 'Room not found',
-        });
+        const error = new Error('Room not found');
+        error.statusCode = 404;
+        throw error;
       }
       res.status(200).json({
         message: 'Room updated successfully',
@@ -87,9 +102,9 @@ exports.deleteRoom = async (req, res, next) => {
   await Room.findByIdAndDelete(roomId).then(async (room) => {
     // if  is not found, return 404
     if (!room) {
-      return res.status(404).json({
-        message: 'Room not found',
-      });
+      const error = new Error('Room not found');
+      error.statusCode = 404;
+      throw error;
     }
     return Hotel.findById(hotelId)
       .then((hotel) => {
@@ -118,9 +133,9 @@ exports.getRoom = async (req, res, next) => {
     .then((room) => {
       // if  is not found, return 404
       if (!room) {
-        return res.status(404).json({
-          message: 'Room not found',
-        });
+        const error = new Error('Room not found');
+        error.statusCode = 404;
+        throw error;
       }
       res.status(200).json({
         message: 'Room found successfully',
@@ -141,9 +156,9 @@ exports.getAllRooms = async (req, res, next) => {
     .then((rooms) => {
       // if  is not found, return 404
       if (!rooms) {
-        return res.status(404).json({
-          message: 'Rooms not found',
-        });
+        const error = new Error('Room not found');
+        error.statusCode = 404;
+        throw error;
       }
       res.status(200).json({
         message: 'Rooms found successfully',
