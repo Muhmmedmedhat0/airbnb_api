@@ -83,7 +83,7 @@ exports.login = async (req, res, next) => {
         { expiresIn: '1h' }
       );
 
-      const { password, isAdmin, ...otherDetails } = loadedUser._doc;
+      const { password, ...otherDetails } = loadedUser._doc;
       res
         .cookie('token', token, { httpOnly: true }, { secure: true })
         .status(200)
