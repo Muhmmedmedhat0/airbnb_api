@@ -112,6 +112,7 @@ exports.updateHotel = async (req, res, next) => {
       hotel.images = images || hotel.images;
       hotel.cheapestPrice = allFields.cheapestPrice || hotel.cheapestPrice;
       hotel.featured = allFields.featured || hotel.featured;
+      hotel.rating = allFields.rating || hotel.rating;
       return hotel.save();
     })
     .then((result) => {

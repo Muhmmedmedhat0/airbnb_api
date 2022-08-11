@@ -16,6 +16,7 @@ router.post(
     body('distance').isString().isLength({ min: 3 }),
     body('desc').isString().isLength({ min: 3 }),
     body('cheapestPrice').isNumeric(),
+    body('rating').isNumeric(),
   ],
   verifyHost,
   hotelController.createHotel
@@ -33,6 +34,7 @@ router.put(
     body('distance').isString().isLength({ min: 3 }),
     body('desc').isString().isLength({ min: 3 }),
     body('cheapestPrice').isNumeric(),
+    body('rating').isNumeric(),
   ],
   verifyHost,
   hotelController.updateHotel
