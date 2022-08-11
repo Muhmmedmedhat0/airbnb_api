@@ -10,6 +10,13 @@ const UserSchema = new mongooose.Schema(
     city: { type: String },
     phone: { type: String },
     hotels: [{ type: mongooose.Schema.Types.ObjectId, ref: 'Hotel' }],
+    reservations: [
+      {
+        type: mongooose.Schema.Types.ObjectId,
+        ref: 'Hotel',
+      },
+      [{ startDate: Date, endDate: Date }],
+    ],
   },
   { timestamps: true }
 );
