@@ -5,40 +5,10 @@ const { body } = require('express-validator');
 const { verifyHost } = require('../middlewares/verifyToken');
 
 // CREATE A NEW HOTEL
-router.post(
-  '/',
-  [
-    body('name').isString().isLength({ min: 3 }),
-    body('type').isString().isLength({ min: 3 }),
-    body('city').isString().isLength({ min: 3 }),
-    body('title').isString().isLength({ min: 3 }),
-    body('address').isString().isLength({ min: 3 }),
-    body('distance').isString().isLength({ min: 3 }),
-    body('desc').isString().isLength({ min: 3 }),
-    body('cheapestPrice').isNumeric(),
-    body('rating').isNumeric(),
-  ],
-  verifyHost,
-  hotelController.createHotel
-);
+router.post('/', verifyHost, hotelController.createHotel);
 
 // UPDATE A HOTEL
-router.put(
-  '/:id',
-  [
-    body('name').isString().isLength({ min: 3 }),
-    body('type').isString().isLength({ min: 3 }),
-    body('city').isString().isLength({ min: 3 }),
-    body('title').isString().isLength({ min: 3 }),
-    body('address').isString().isLength({ min: 3 }),
-    body('distance').isString().isLength({ min: 3 }),
-    body('desc').isString().isLength({ min: 3 }),
-    body('cheapestPrice').isNumeric(),
-    body('rating').isNumeric(),
-  ],
-  verifyHost,
-  hotelController.updateHotel
-);
+router.put('/:id', verifyHost, hotelController.updateHotel);
 
 // DELETE A HOTEL
 router.delete('/:id', verifyHost, hotelController.deleteHotel);
