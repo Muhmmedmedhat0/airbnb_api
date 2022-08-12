@@ -3,6 +3,8 @@ const bycript = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = global.process.env.JWT_SECRET;
 const { validationResult } = require('express-validator');
+const nodemailer = require('nodemailer');
+const sendgridTransport = require('nodemailer-sendgrid-transport');
 
 // signup controller for authentication
 exports.signup = async (req, res, next) => {
@@ -13,6 +15,14 @@ exports.signup = async (req, res, next) => {
     error.statusCode = 422;
     throw error;
   }
+  // addong node mailer to send email
+  const transporter = nodemailer.createTransport(
+    sendgridTransport({
+      auth: {
+        api_key: global.process.env.SENDGRID_API_KEY,
+      },
+    })
+  );
   // check if user already exists in database
   const { email } = req.body;
   const user = await User.findOne({ email });
@@ -32,10 +42,32 @@ exports.signup = async (req, res, next) => {
       .save()
       .then((user) => {
         const { password, isAdmin, ...otherDetails } = user._doc;
-        res.status(201).json({
-          message: 'User created!',
-          user: { ...otherDetails },
-        });
+        // send email a welcome message to the user
+        transporter
+          .sendMail({
+            to: user.email,
+            from: 'muhmmedmedhat0@gmail.com',
+            subject: 'Welcome to Airbnb',
+            html: `<h1>Welcome to Airbnb</h1>
+            <p>You have successfully signed up to Airbnb.</p>
+            <p>Your email: ${user.email}</p>
+            <p>Your password: ${req.body.password}</p>
+            <p>Thank you for using Airbnb.</p>`,
+          })
+          .then(() => {
+            res.status(201).json({
+              message: 'User created successfully!',
+              user: {
+                ...otherDetails,
+              },
+            });
+          })
+          .catch((err) => {
+            if (!err.statusCode) {
+              err.statusCode = 500;
+            }
+            next(err);
+          });
       })
       .catch((err) => {
         if (!err.statusCode) {
