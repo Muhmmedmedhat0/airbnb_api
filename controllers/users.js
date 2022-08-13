@@ -6,9 +6,10 @@ exports.updateUser = async (req, res, next) => {
   // adding validation to the request body
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    const error = new Error('Validation failed, entered data is incorrect.');
-    error.statusCode = 422;
-    throw error;
+    return res.status(422).json({
+      message: 'Validation failed, entered data is incorrect.',
+      errors: errors.array(),
+    });
   }
   const { id } = req.params;
   // check if the logged in user is the creator of the post
@@ -17,15 +18,15 @@ exports.updateUser = async (req, res, next) => {
     .then((user) => {
       // check if the logged in user is the creator of the post
       if (user._id.toString() !== req.user.userId) {
-        const error = new Error('Not authorized!');
-        error.statusCode = 403;
-        throw error;
+        return res.status(403).json({
+          message: 'Not authorized!',
+        });
       }
       // if user does not exist, return error
       if (!user) {
-        const error = new Error('User does not exist');
-        error.statusCode = 404;
-        throw error;
+        return res.status(404).json({
+          message: 'User does not exist',
+        });
       }
       //  update user in database
       res.status(200).json({
@@ -47,15 +48,15 @@ exports.deleteUser = async (req, res, next) => {
     .then((user) => {
       // check if the logged in user is the creator of the post
       if (user._id.toString() !== req.user.userId) {
-        const error = new Error('Not authorized!');
-        error.statusCode = 403;
-        throw error;
+        return res.status(403).json({
+          message: 'Not authorized!',
+        });
       }
       // if user does not exist, return error
       if (!user) {
-        const error = new Error('User does not exist');
-        error.statusCode = 404;
-        throw error;
+        return res.status(404).json({
+          message: 'User does not exist',
+        });
       }
       //  delete user from database
       res.status(200).json({
@@ -78,9 +79,9 @@ exports.getUser = async (req, res, next) => {
     .then((user) => {
       // if user does not exist, return error
       if (!user) {
-        const error = new Error('User does not exist');
-        error.statusCode = 404;
-        throw error;
+        return res.status(404).json({
+          message: 'User does not exist',
+        });
       }
       //  get user from database
       res.status(200).json({
@@ -102,9 +103,9 @@ exports.getUsers = async (req, res, next) => {
     .then((users) => {
       // if users do not exist, return error
       if (!users) {
-        const error = new Error('Users do not exist');
-        error.statusCode = 404;
-        throw error;
+        return res.status(404).json({
+          message: 'Users do not exist',
+        });
       }
       //  get users from database
       res.status(200).json({

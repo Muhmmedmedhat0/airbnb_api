@@ -17,16 +17,17 @@ exports.createHotel = async (req, res, next) => {
   // get the validation result from the request object
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    const error = new Error('Validation failed, entered data is incorrect.');
-    error.statusCode = 422;
-    throw error;
+    return res.status(422).json({
+      message: 'Validation failed, entered data is incorrect.',
+      errors: errors.array(),
+    });
   }
   const images = req.files.map((file) => file.path.replace('\\', '/'));
   // check if thers is an image
   if (images.length === 0) {
-    const error = new Error('No images provided.');
-    error.statusCode = 422;
-    throw error;
+    return res.status(422).json({
+      message: 'No images provided.',
+    });
   }
   // get the hotel data from the request body
   const { ...allFields } = req.body;
@@ -68,9 +69,10 @@ exports.createHotel = async (req, res, next) => {
 exports.updateHotel = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    const error = new Error('Validation failed, entered data is incorrect.');
-    error.statusCode = 422;
-    throw error;
+    return res.status(422).json({
+      message: 'Validation failed, entered data is incorrect.',
+      errors: errors.array(),
+    });
   }
   const { id } = req.params;
   let { ...allFields } = req.body;
@@ -80,22 +82,22 @@ exports.updateHotel = async (req, res, next) => {
     images = req.files.map((file) => file.path.replace('\\', '/'));
   }
   if (images.length === 0) {
-    const error = new Error('No images provided.');
-    error.statusCode = 422;
-    throw error;
+    return res.status(422).json({
+      message: 'No images provided.',
+    });
   }
   await Hotel.findById(id)
     .then((hotel) => {
       if (!hotel) {
-        const error = new Error('Could not find hotel.');
-        error.statusCode = 404;
-        throw error;
+        return res.status(404).json({
+          message: 'Could not find hotel.',
+        });
       }
       // check if the logged in user is the creator of the hotel
       if (hotel.creator.toString() !== req.user.userId) {
-        const error = new Error('Not authorized!');
-        error.statusCode = 403;
-        throw error;
+        return res.status(403).json({
+          message: 'Not authorized!',
+        });
       }
       // if images are provided, clear the old images
       if (images !== hotel.images) {
@@ -135,15 +137,15 @@ exports.deleteHotel = async (req, res, next) => {
   await Hotel.findById(id)
     .then((hotel) => {
       if (!hotel) {
-        const error = new Error('Could not find hotel.');
-        error.statusCode = 404;
-        throw error;
+        return res.status(404).json({
+          message: 'Could not find hotel.',
+        });
       }
       // check if the logged in user is the creator of the post
       if (hotel.creator.toString() !== req.user.userId) {
-        const error = new Error('Not authorized!');
-        error.statusCode = 403;
-        throw error;
+        return res.status(403).json({
+          message: 'Not authorized!',
+        });
       }
       // clear the image
       clearImage(hotel.images);
@@ -185,9 +187,9 @@ exports.getHotel = async (req, res, next) => {
   await Hotel.findById(id)
     .then((hotel) => {
       if (!hotel) {
-        const error = new Error('Could not find hotel.');
-        error.statusCode = 404;
-        throw error;
+        return res.status(404).json({
+          message: 'Could not find hotel.',
+        });
       }
       res.status(200).json({
         message: 'Hotel found successfully!',
@@ -214,9 +216,9 @@ exports.getHotels = async (req, res, next) => {
     .limit(req.query.limit)
     .then((hotels) => {
       if (!hotels) {
-        const error = new Error('Could not find hotels.');
-        error.statusCode = 404;
-        throw error;
+        return res.status(404).json({
+          message: 'Could not find hotels.',
+        });
       }
       res.status(200).json({
         hotels: hotels.length > 0 ? hotels : 'No hotels found.',
@@ -240,9 +242,9 @@ exports.countHotelsByCity = async (req, res, next) => {
   )
     .then((list) => {
       if (!list) {
-        const error = new Error('Could not find hotels.');
-        error.statusCode = 404;
-        throw error;
+        return res.status(404).json({
+          message: 'Could not find hotels.',
+        });
       }
       res.status(200).json({
         message: 'Hotels found successfully!',
@@ -268,9 +270,9 @@ exports.countHotelsByType = async (req, res, next) => {
   )
     .then((list) => {
       if (!list) {
-        const error = new Error('Could not find hotels.');
-        error.statusCode = 404;
-        throw error;
+        return res.status(404).json({
+          message: 'Could not find hotels.',
+        });
       }
       res.status(200).json({
         message: 'Hotels found successfully!',
@@ -298,9 +300,9 @@ exports.getHotelRooms = async (req, res, next) => {
     })
   ).then((list) => {
     if (!list) {
-      const error = new Error('Could not find rooms.');
-      error.statusCode = 404;
-      throw error;
+      return res.status(404).json({
+        message: 'Could not find rooms.',
+      });
     }
     res.status(200).json({
       message: 'Rooms found successfully!',

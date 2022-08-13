@@ -64,13 +64,12 @@ app.use('/api/payment', paymentRouter);
 
 // error handling middleware - must be last in the chain of middleware (after all other middleware)
 app.use((error, req, res, next) => {
-  console.log(error);
   const status = error.statusCode || 500;
-  const message = error.message || 'Internal Server Error';
-  const data = error.data;
-  res.status(status).json({ message: message, data: data });
+  console.log(status);
+  // const message = error.message || 'Internal Server Error';
+  // const data = error.data;
+  // res.status(status).json({ message: message, data: data });
 });
-
 app.listen(PORT, (error) => {
   console.log(error || `server is running on http://localhost:${PORT}`);
 });

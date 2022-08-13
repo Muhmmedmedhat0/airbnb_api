@@ -11,9 +11,10 @@ exports.signup = async (req, res, next) => {
   // adding validation to the request body
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    const error = new Error('Validation failed, entered data is incorrect.');
-    error.statusCode = 422;
-    throw error;
+    return res.status(422).json({
+      message: 'Validation failed, entered data is incorrect.',
+      errors: errors.array(),
+    });
   }
   // addong node mailer to send email
   const transporter = nodemailer.createTransport(
@@ -27,9 +28,9 @@ exports.signup = async (req, res, next) => {
   const { email } = req.body;
   const user = await User.findOne({ email });
   if (user) {
-    const error = new Error('User already exists.');
-    error.statusCode = 400;
-    throw error;
+    return res.status(400).json({
+      message: 'User already exists.',
+    });
   }
   // hash password before saving it to the database
   bycript.hash(req.body.password, 12).then((hashedPw) => {
@@ -38,43 +39,36 @@ exports.signup = async (req, res, next) => {
       password: hashedPw,
     });
     // save user to database
-    user
-      .save()
-      .then((user) => {
-        const { password, isAdmin, ...otherDetails } = user._doc;
-        // send email a welcome message to the user
-        transporter
-          .sendMail({
-            to: user.email,
-            from: 'muhmmedmedhat0@gmail.com',
-            subject: 'Welcome to Airbnb',
-            html: `<h1>Welcome to Airbnb</h1>
+    user.save().then((user) => {
+      const { password, isAdmin, ...otherDetails } = user._doc;
+      // send email a welcome message to the user
+      transporter
+        .sendMail({
+          to: user.email,
+          from: 'muhmmedmedhat0@gmail.com',
+          subject: 'Welcome to Airbnb',
+          html: `<h1>Welcome to Airbnb</h1>
             <p>You have successfully signed up to Airbnb.</p>
             <p>Your email: ${user.email}</p>
             <p>Your password: ${req.body.password}</p>
+            <p>Please dont share your account information with any one</p>
             <p>Thank you for using Airbnb.</p>`,
-          })
-          .then(() => {
-            res.status(201).json({
-              message: 'User created successfully!',
-              user: {
-                ...otherDetails,
-              },
-            });
-          })
-          .catch((err) => {
-            if (!err.statusCode) {
-              err.statusCode = 500;
-            }
-            next(err);
+        })
+        .then(() => {
+          res.status(201).json({
+            message: 'User created successfully!',
+            user: {
+              ...otherDetails,
+            },
           });
-      })
-      .catch((err) => {
-        if (!err.statusCode) {
-          err.statusCode = 500;
-        }
-        next(err);
-      });
+        })
+        .catch((err) => {
+          if (!err.statusCode) {
+            err.statusCode = 500;
+          }
+          next(err);
+        });
+    });
   });
 };
 
@@ -83,17 +77,18 @@ exports.login = async (req, res, next) => {
   // adding validation to the request body
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    const error = new Error('Validation failed, entered data is incorrect.');
-    error.statusCode = 422;
-    throw error;
+    return res.status(422).json({
+      message: 'Validation failed, entered data is incorrect.',
+      errors: errors.array(),
+    });
   }
   // check if user already exists in database
   const { email, password } = req.body;
   const user = await User.findOne({ email });
   if (!user) {
-    const error = new Error('User does not exist.');
-    error.statusCode = 400;
-    throw error;
+    return res.status(400).json({
+      message: 'User does not exist.',
+    });
   }
   // compare password with hashed password in database
   loadedUser = user;
@@ -101,9 +96,9 @@ exports.login = async (req, res, next) => {
     .compare(password, user.password)
     .then((isEqual) => {
       if (!isEqual) {
-        const error = new Error('Password is incorrect.');
-        error.statusCode = 400;
-        throw error;
+        return res.status(400).json({
+          message: 'Password is incorrect.',
+        });
       }
       // if password is correct, send the user's id and token
       const token = jwt.sign(
