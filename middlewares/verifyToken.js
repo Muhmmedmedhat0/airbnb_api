@@ -11,9 +11,13 @@ const verifyToken = (req, res, next) => {
   }
   jwt.verify(token, JWT_SECRET, (err, decodedToken) => {
     if (err) {
-      const error = new Error('Unauthorized request');
-      error.statusCode = 401;
-      throw error;
+      // const error = new Error('Unauthorized request');
+      // error.statusCode = 401;
+      // throw error;
+      return res.json({
+        status: 'error',
+        message: 'You are not logged in!',
+      });
     }
     req.user = decodedToken;
     next();
@@ -28,9 +32,13 @@ const verifyUser = (req, res, next) => {
     if (req.user.userId === req.params.id || req.user.isAdmin === 'admin') {
       next();
     } else {
-      const error = new Error('You are not authorized to perform this action!');
-      error.statusCode = 403;
-      throw error;
+      // const error = new Error('You are not authorized to perform this action!');
+      // error.statusCode = 403;
+      // throw error;
+      return res.json({
+        status: 'error',
+        message: 'You are not authorized to perform this action!',
+      });
     }
   });
 };

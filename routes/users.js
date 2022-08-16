@@ -5,7 +5,7 @@ const { verifyUser, verifyAdmin } = require('../middlewares/verifyToken');
 const { body } = require('express-validator');
 
 // UPDATE A USER
-router.put('/:id', verifyUser, userController.updateUser);
+router.put('/:id', userController.updateUser);
 // DELETE A USER
 router.delete('/:id', verifyUser, userController.deleteUser);
 // GET A USER
