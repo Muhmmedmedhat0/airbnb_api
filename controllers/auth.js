@@ -56,7 +56,6 @@ exports.signup = async (req, res, next) => {
         })
         .then(() => {
           res.status(201).json({
-            message: 'User created successfully!',
             user: {
               ...otherDetails,
             },
@@ -112,12 +111,12 @@ exports.login = async (req, res, next) => {
 
       const { password, ...otherDetails } = loadedUser._doc;
       res
-        .cookie('token', token, { httpOnly: true }, { secure: true })
+        .cookie('token', token, { httpOnly: true })
         .status(200)
         .json({
-          message: `Welcome ${loadedUser.name}!`,
           user: {
             ...otherDetails,
+            token,
           },
         });
     })

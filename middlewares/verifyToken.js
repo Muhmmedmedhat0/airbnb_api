@@ -3,19 +3,15 @@ const JWT_SECRET = global.process.env.JWT_SECRET;
 
 // verify token
 const verifyToken = (req, res, next) => {
-  const token = req.cookies.token;
+  const token = req.headers.token;
   if (!token) {
-    const error = new Error('You are not logged in!');
-    error.statusCode = 401;
-    throw error;
+    return res.status(401).json({
+      message: 'You are not logged in!',
+    });
   }
   jwt.verify(token, JWT_SECRET, (err, decodedToken) => {
     if (err) {
-      // const error = new Error('Unauthorized request');
-      // error.statusCode = 401;
-      // throw error;
-      return res.json({
-        status: 'error',
+      return res.status(401).json({
         message: 'You are not logged in!',
       });
     }
@@ -32,11 +28,7 @@ const verifyUser = (req, res, next) => {
     if (req.user.userId === req.params.id || req.user.isAdmin === 'admin') {
       next();
     } else {
-      // const error = new Error('You are not authorized to perform this action!');
-      // error.statusCode = 403;
-      // throw error;
-      return res.json({
-        status: 'error',
+      return res.status(403).json({
         message: 'You are not authorized to perform this action!',
       });
     }
@@ -51,9 +43,9 @@ const verifyHost = (req, res, next) => {
     if (req.user.isAdmin === 'host' || req.user.isAdmin === 'admin') {
       next();
     } else {
-      const error = new Error('You are not authorized to perform this action!');
-      error.statusCode = 403;
-      throw error;
+      return res.status(403).json({
+        message: 'You are not authorized to perform this action!',
+      });
     }
   });
 };
@@ -65,9 +57,9 @@ const verifyAdmin = (req, res, next) => {
     if (req.user.isAdmin === 'admin') {
       next();
     } else {
-      const error = new Error('You are not authorized to perform this action!');
-      error.statusCode = 403;
-      throw error;
+      return res.status(403).json({
+        message: 'You are not authorized to perform this action!',
+      });
     }
   });
 };

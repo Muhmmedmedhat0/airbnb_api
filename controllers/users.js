@@ -17,11 +17,11 @@ exports.updateUser = async (req, res, next) => {
   await User.findByIdAndUpdate(id, { $set: req.body }, { new: true })
     .then((user) => {
       // check if the logged in user is the creator of the post
-      // if (user._id.toString() !== req.user.userId) {
-      //   return res.status(403).json({
-      //     message: 'Not authorized!',
-      //   });
-      // }
+      if (user._id.toString() !== req.user.userId) {
+        return res.status(403).json({
+          message: 'Not authorized!',
+        });
+      }
       // if user does not exist, return error
       if (!user) {
         return res.status(404).json({
