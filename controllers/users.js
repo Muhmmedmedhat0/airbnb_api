@@ -4,19 +4,17 @@ const { validationResult } = require('express-validator');
 // update user controller
 exports.updateUser = async (req, res, next) => {
   // adding validation to the request body
-  // const errors = validationResult(req);
-  // if (!errors.isEmpty()) {
-  //   return res.status(422).json({
-  //     message: 'Validation failed, entered data is incorrect.',
-  //     errors: errors.array(),
-  //   });
-  // }
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(422).json({
+      message: 'Validation failed, entered data is incorrect.',
+      errors: errors.array(),
+    });
+  }
   const { id } = req.params;
-  // check if the logged in user is the creator of the post
-
   await User.findByIdAndUpdate(id, { $set: req.body }, { new: true })
     .then((user) => {
-      // check if the logged in user is the creator of the post
+      // check if the logged in user is the creator to give access to update
       if (user._id.toString() !== req.user.userId) {
         return res.status(403).json({
           message: 'Not authorized!',

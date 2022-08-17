@@ -15,27 +15,27 @@ const clearImage = (oldImages) => {
 // create hotel controller
 exports.createHotel = async (req, res, next) => {
   // get the validation result from the request object
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(422).json({
-      message: 'Validation failed, entered data is incorrect.',
-      errors: errors.array(),
-    });
-  }
-  const images = req.files.map((file) => file.path.replace('\\', '/'));
-  // check if thers is an image
-  if (images.length === 0) {
-    return res.status(422).json({
-      message: 'No images provided.',
-    });
-  }
+  // const errors = validationResult(req);
+  // if (!errors.isEmpty()) {
+  //   return res.status(422).json({
+  //     message: 'Validation failed, entered data is incorrect.',
+  //     errors: errors.array(),
+  //   });
+  // }
+  // const images = req.files.map((file) => file.path.replace('\\', '/'));
+  // // check if thers is an image
+  // if (images.length === 0) {
+  //   return res.status(422).json({
+  //     message: 'No images provided.',
+  //   });
+  // }
   // get the hotel data from the request body
   const { ...allFields } = req.body;
   let creator;
   const hotel = new Hotel({
     ...allFields,
     creator: req.user.userId,
-    images: images,
+    // images: images,
   });
   // save the hotel to the database
   await hotel
