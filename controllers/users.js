@@ -21,6 +21,7 @@ exports.updateUser = async (req, res, next) => {
         });
       }
       user.wishlist.push(allFields.wishlist);
+      user.reservation.push(allFields.reservation);
       user.name = allFields.name || user.name;
       user.email = allFields.email || user.email;
       user.country = allFields.country || user.country;

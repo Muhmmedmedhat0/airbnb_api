@@ -10,6 +10,7 @@ const UserSchema = new mongooose.Schema(
     city: { type: String },
     phone: { type: String },
     wishlist: [{ type: mongooose.Schema.Types.ObjectId, ref: 'Hotel' }],
+    reservation: [{ type: mongooose.Schema.Types.ObjectId, ref: 'Hotel' }],
   },
   { timestamps: true }
 );
