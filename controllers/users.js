@@ -12,23 +12,25 @@ exports.updateUser = async (req, res, next) => {
     });
   }
   const { id } = req.params;
-  await User.findByIdAndUpdate(id, { $set: req.body }, { new: true })
+  const { ...allFields } = req.body;
+  await User.findById(id)
     .then((user) => {
-      // check if the logged in user is the creator to give access to update
-      if (user._id.toString() !== req.user.userId) {
-        return res.status(403).json({
-          message: 'Not authorized!',
-        });
-      }
-      // if user does not exist, return error
       if (!user) {
         return res.status(404).json({
-          message: 'User does not exist',
+          message: 'User not found.',
         });
       }
-      //  update user in database
+      user.wishlist.push(allFields.wishlist);
+      user.name = allFields.name || user.name;
+      user.email = allFields.email || user.email;
+      user.country = allFields.country || user.country;
+      user.phone = allFields.phone || user.phone;
+
+      return user.save();
+    })
+    .then((user) => {
       return res.status(200).json({
-        message: 'User updated successfully!',
+        message: 'User updated successfully.',
         user: user,
       });
     })

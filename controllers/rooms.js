@@ -9,7 +9,7 @@ exports.createRoom = async (req, res, next) => {
   if (!errors.isEmpty()) {
     return res.status(422).json({
       message: 'Validation failed, entered data is incorrect.',
-      errors: errors.array()
+      errors: errors.array(),
     });
   }
   // after the room is created, add it to the hotel rooms array by using the hotelId in the request body
@@ -53,7 +53,7 @@ exports.updateRoom = async (req, res, next) => {
   if (!errors.isEmpty()) {
     return res.status(422).json({
       message: 'Validation failed, entered data is incorrect.',
-      errors: errors.array()
+      errors: errors.array(),
     });
   }
   await Room.findByIdAndUpdate(req.params.id, { $set: req.body }, { new: true })
