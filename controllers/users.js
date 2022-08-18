@@ -14,6 +14,9 @@ exports.updateUser = async (req, res, next) => {
   const { id } = req.params;
   const { ...allFields } = req.body;
   await User.findById(id)
+    .populate('hotels')
+    .populate('reservation')
+    .populate('wishlist')
     .then((user) => {
       if (!user) {
         return res.status(404).json({
@@ -47,12 +50,6 @@ exports.deleteUser = async (req, res, next) => {
   const { id } = req.params;
   await User.findByIdAndDelete(id)
     .then((user) => {
-      // check if the logged in user is the creator of the post
-      if (user._id.toString() !== req.user.userId) {
-        return res.status(403).json({
-          message: 'Not authorized!',
-        });
-      }
       // if user does not exist, return error
       if (!user) {
         return res.status(404).json({

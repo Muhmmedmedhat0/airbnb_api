@@ -1,7 +1,7 @@
 const mongooose = require('mongoose');
 const UserSchema = new mongooose.Schema(
   {
-    name: { type: String, required: true, unique: true },
+    name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     isAdmin: { type: String, default: 'guest' },
@@ -11,6 +11,7 @@ const UserSchema = new mongooose.Schema(
     phone: { type: String },
     wishlist: [{ type: mongooose.Schema.Types.ObjectId, ref: 'Hotel' }],
     reservation: [{ type: mongooose.Schema.Types.ObjectId, ref: 'Hotel' }],
+    hotels: [{ type: mongooose.Schema.Types.ObjectId, ref: 'Hotel' }],
   },
   { timestamps: true }
 );

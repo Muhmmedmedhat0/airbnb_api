@@ -83,7 +83,10 @@ exports.login = async (req, res, next) => {
   }
   // check if user already exists in database
   const { email, password } = req.body;
-  const user = await User.findOne({ email });
+  const user = await User.findOne({ email })
+    .populate('hotels')
+    .populate('reservation')
+    .populate('wishlist');
   if (!user) {
     return res.status(400).json({
       message: 'User does not exist.',
