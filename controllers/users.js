@@ -74,6 +74,9 @@ exports.getUser = async (req, res, next) => {
   const { id } = req.params;
   // console.log(req.user.userId);
   await User.findById(id)
+    .populate('hotels')
+    .populate('reservation')
+    .populate('wishlist')
     .then((user) => {
       // if user does not exist, return error
       if (!user) {
