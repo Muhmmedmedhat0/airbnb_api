@@ -5,7 +5,7 @@ const multer = require('multer');
 const cors = require('cors');
 const fs = require('fs');
 const cookieParser = require('cookie-parser');
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 1234;
 const express = require('express');
 const app = express();
 
